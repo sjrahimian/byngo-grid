@@ -20,6 +20,7 @@ import argparse
 from pathlib import Path
 import sys
 import random
+from math import ceil
 
 def arguments(): 
     parser = argparse.ArgumentParser(prog='Bango', description='Random ningo board generator.', epilog='')
@@ -27,16 +28,18 @@ def arguments():
     parser.add_argument('-o', '--output', action="store", default=Path("./bango-output.pdf"), help="Location and filename.")
 
     parser.add_argument('-x', '--no-free', action='store_true', default=False, help="Remove free space.")
-    parser.add_argument('-g', '--grid', action='store', default=1, type=int, choices=range(1, 99), help="Number of players/grids.")
-    parser.add_argument('-s', '--size', action='store', default=5, type=int, choices=range(3, 5), help="Size of grid: 3x3, 4x4, or 5x5.")
+    parser.add_argument('-i', '--num-players', action='store', default=1, type=int, help="Number of players/grids.")
+    parser.add_argument('-g', '--grid-size', action='store', default=5, type=int, choices=range(3, 6), help="Size of grid: 3x3, 4x4, or 5x5.")
     parser.add_argument('-m', '--min', action='store', default=1, type=int, help="Minimum value to appear on the grid.")
     parser.add_argument('-n', '--max', action='store', default=50, type=int, help="Maximum value to appear on the grid.")
     parser.add_argument('-p', '--page', action='store', default=4, type=int, choices={1, 2, 4}, help="1, 2, or 4 grids/page when exporting.")
 
+
+
     return parser.parse_args()
 
 
-def generateGrid(min: int=1, max: int=50, size: int=5):
+def generateGrid(min: int=1, max: int=50, grid: int=5):
         if min >= max:
             raise ValueError(f"Minimum value ({min}) cannot be greater than maximum value ({max}).")
 
@@ -45,7 +48,7 @@ def generateGrid(min: int=1, max: int=50, size: int=5):
         elif max > 999:
             raise ValueError(f"Maximum value ({max}) cannot excceed 999.")
 
-        length = size * size
+        length = grid * grid
         unique = []
         while len(unique) != (length):
             if (val:= random.randint(min, max)) not in unique:
@@ -56,10 +59,23 @@ def generateGrid(min: int=1, max: int=50, size: int=5):
         # split into matrix
         return [ [ unique.pop() for i in range(0, grid) ] for j in range(0, grid) ]
 
+def addFreeSpace(matrix, grid: int=5):
+    if (grid % 2) == 0:
+        row = random.randint(2, 3) - 1
+        col = random.randint(2, 3) - 1
+    else:
+        row = ceil(grid / 2) - 1
+        col = row
+
+    matrix[row][col] = "FREE SPACE"
+
+
 def main(args):
-    numPlayers = 2
-    for x in range(0, numPlayers):
-        matrix = generateGrid()
+    for x in range(0, args.num_players):
+        matrix = generateGrid(args.min, args.max, args.grid_size)
+        if not args.no_free:
+            addFreeSpace(matrix, args.grid_size)
+
         for i in range(0, len(matrix)):
             print(matrix[i])
 
