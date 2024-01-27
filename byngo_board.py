@@ -21,6 +21,9 @@ from pathlib import Path
 import sys
 import random
 from math import ceil
+import os
+from pyhtml2pdf import converter
+from pypdf import PdfWriter
 
 # 3rd party Libs
 import pandas as pd
@@ -37,7 +40,7 @@ def arguments():
     parser.add_argument('-g', '--grid-size', action='store', default=5, type=int, choices=range(3, 6), help="Size of grid: 3x3, 4x4, or 5x5.")
     parser.add_argument('-m', '--min', action='store', default=1, type=int, help="Minimum value to appear on the grid.")
     parser.add_argument('-n', '--max', action='store', default=50, type=int, help="Maximum value to appear on the grid.")
-    parser.add_argument('-p', '--page', action='store', default=4, type=int, choices={1, 2, 4}, help="1, 2, or 4 grids/page when exporting.")
+    # parser.add_argument('-p', '--page', action='store', default=4, type=int, choices={1, 2, 4}, help="1, 2, or 4 grids/page when exporting.")
 
 
 
@@ -72,22 +75,17 @@ def addFreeSpace(matrix, grid: int=5):
         row = ceil(grid / 2) - 1
         col = row
 
-    matrix[row][col] = "FREE SPACE"
+    matrix[row][col] = "FREE"
 
 
 def main(args):
     for x in range(0, args.num_players):
+        print(f"Creating gird {x + 1} of {args.num_players}...")
         matrix = generateGrid(args.min, args.max, args.grid_size)
         if not args.no_free:
             addFreeSpace(matrix, args.grid_size)
 
-        for i in range(0, len(matrix)):
-            print(matrix[i])
-
-        print()
         df = pd.DataFrame(matrix)
-        print(df)
-
         pd.set_option('colheader_justify', 'center')   # FOR TABLE <th>
 
         template = '''
@@ -104,11 +102,31 @@ def main(args):
         </html>
         '''
 
-        
-
         # OUTPUT AN HTML FILE
-        with open('myhtml.html', 'w') as f:
+        tempHTML = Path(f'temp{x}.html')
+        with open(tempHTML, 'w') as f:
             f.write(template.format(table=df.to_html(header=None, index=False, classes='mystyle')))
+
+        converter.convert(f'file:///{tempHTML.resolve()}', f'temp{x}.pdf')
+        tempHTML.unlink()
+
+    print("Packaging neatly...")
+    merger = PdfWriter()
+    pdfs = [ x for x in Path('./').glob('*temp*.pdf') if x.is_file() ]
+    for pdf in pdfs:
+        merger.append(pdf)
+
+    merger.write("byngo-game-grids.pdf")
+    merger.close()
+    
+    # Clean-up
+    print("Cleaning up...")
+    pdfs = [ x for x in Path(r'./').glob('*temp*.pdf') if x.is_file() ]
+    for pdf in pdfs:
+        pdf.unlink()
+
+
+    print("Finished.")
 
 if __name__ == "__main__":
     args = arguments()
