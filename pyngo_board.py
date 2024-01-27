@@ -21,12 +21,11 @@ from pathlib import Path
 import sys
 import random
 from math import ceil
-import os
-from pyhtml2pdf import converter
-from pypdf import PdfWriter
 
 # 3rd party Libs
 import pandas as pd
+from pyhtml2pdf import converter
+from pypdf import PdfWriter
 print()
 
 
