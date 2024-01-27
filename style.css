@@ -1,0 +1,35 @@
+/* includes alternating gray and white with on-hover color */
+
+#byngo-container {
+    width: 500px;
+    justify-content: center;
+}
+
+h1 {
+    font-size: 45pt;
+    width: auto;
+    text-align: center;
+    letter-spacing: 30px;
+    background-color: white;
+    border: 5px solid black;
+    border-bottom: none;
+    margin: 0;
+}
+
+table {
+    width: 100%;
+    table-layout: fixed;
+    font-size: 20pt;
+    font-family: Arial;
+    border-collapse: collapse;
+    border: 5px solid rgb(255, 0, 0);
+}
+
+td {
+    max-height: auto;
+    text-align: center;
+    word-wrap: break-word;
+    padding: 20 20 20 20;
+    border: 5px solid black;
+    white-space: break-spaces;
+}

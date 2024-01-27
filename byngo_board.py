@@ -22,6 +22,11 @@ import sys
 import random
 from math import ceil
 
+# 3rd party Libs
+import pandas as pd
+print()
+
+
 def arguments(): 
     parser = argparse.ArgumentParser(prog='Bango', description='Random ningo board generator.', epilog='')
 
@@ -80,9 +85,30 @@ def main(args):
             print(matrix[i])
 
         print()
+        df = pd.DataFrame(matrix)
+        print(df)
 
+        pd.set_option('colheader_justify', 'center')   # FOR TABLE <th>
 
-    
+        template = '''
+        <html>
+        <head><title>HTML Pandas Dataframe with CSS</title></head>
+        <link rel="stylesheet" type="text/css" href="style.css"/>
+        <body>
+            <div id="byngo-container">
+                <h1>BYNGO</h1>
+                {table}
+                <script src="script.js"></script> 
+            </div>
+        </body>
+        </html>
+        '''
+
+        
+
+        # OUTPUT AN HTML FILE
+        with open('myhtml.html', 'w') as f:
+            f.write(template.format(table=df.to_html(header=None, index=False, classes='mystyle')))
 
 if __name__ == "__main__":
     args = arguments()
