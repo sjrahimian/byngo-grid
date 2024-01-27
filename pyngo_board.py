@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-""" Byngo: Board Generator
+""" Pyngo Board
 
     Random bingo board generator.
 """
@@ -9,7 +9,7 @@ __author__ = [""]
 __email__ = [""]
 __maintainer__ = [""]
 __credits__ = [__author__, ""]
-__title__ = "Byngo"
+__title__ = "Pyngo Board"
 __copyright__ = "Copyright 2024"
 __version__ = "0.0.1"
 __status__ = "development"
@@ -31,7 +31,7 @@ print()
 
 
 def arguments(): 
-    parser = argparse.ArgumentParser(prog='Bango', description='Random ningo board generator.', epilog='')
+    parser = argparse.ArgumentParser(prog='Pyngo Board', description='Random bingo board generator.', epilog='')
 
     parser.add_argument('-o', '--output', action="store", default=Path("./bango-output.pdf"), help="Location and filename.")
 
@@ -116,7 +116,7 @@ def main(args):
     for pdf in pdfs:
         merger.append(pdf)
 
-    merger.write("byngo-game-grids.pdf")
+    merger.write("pyngo-boards.pdf")
     merger.close()
     
     # Clean-up
