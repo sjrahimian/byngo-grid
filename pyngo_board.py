@@ -33,7 +33,7 @@ print()
 def arguments(): 
     parser = argparse.ArgumentParser(prog='Pyngo Board', description='Random bingo board generator.', epilog='')
 
-    parser.add_argument('-o', '--output', action="store", default=Path("./bango-output.pdf"), help="Location and filename.")
+    # parser.add_argument('-o', '--output', action="store", default=Path("path/to/pyngo-boards.pdf"), help="Custom directory to save file.")
 
     parser.add_argument('-x', '--no-free', action='store_true', default=False, help="Remove free space.")
     parser.add_argument('-i', '--num-players', action='store', default=1, type=int, help="Number of players/grids.")
@@ -93,8 +93,8 @@ def main(args):
         <head><title>HTML Pandas Dataframe with CSS</title></head>
         <link rel="stylesheet" type="text/css" href="style.css"/>
         <body>
-            <div id="byngo-container">
-                <h1>BYNGO</h1>
+            <div id="pyngo-container">
+                <h1>PYNGO</h1>
                 {table}
                 <script src="script.js"></script> 
             </div>

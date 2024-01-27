@@ -4,9 +4,7 @@ Generate random bingo boards between a minimum and maximum values.
 
 ## Run
 
-.. code-block:: bash
-
-python .\pyngo_board.py --help
+>>> python .\pyngo_board.py --help
 
 
 ### Options:
