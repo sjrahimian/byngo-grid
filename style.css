@@ -1,7 +1,6 @@
-/* Pyngo Board Styling */
+/* Byngo Board Styling */
 
-
-#pyngo-container {
+#byngo-container {
     width: 450px;
     height: 450px;
     justify-content: center;
@@ -27,7 +26,7 @@ table {
     font-size: 25pt;
     font-family: Arial;
     border-collapse: collapse;
-    border: 5px solid rgb(255, 0, 0);
+    border: 5px solid rgb(0, 0, 0);
 }
 
 td {

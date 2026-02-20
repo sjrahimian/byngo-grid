@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-""" Pyngo Board
+""" Byngo Board
 
     Random bingo board generator.
 """
@@ -9,7 +9,7 @@ __author__ = [""]
 __email__ = [""]
 __maintainer__ = [""]
 __credits__ = [__author__, ""]
-__title__ = "Pyngo Board"
+__title__ = "Byngo Board"
 __copyright__ = "Copyright 2024"
 __version__ = "0.0.1"
 __status__ = "development"
@@ -30,15 +30,16 @@ print()
 
 
 def arguments(): 
-    parser = argparse.ArgumentParser(prog='Pyngo Board', description='Random bingo board generator.', epilog='')
+    parser = argparse.ArgumentParser(prog='Byngo Board', description='Random bingo board generator.', epilog='')
 
-    # parser.add_argument('-o', '--output', action="store", default=Path("path/to/pyngo-boards.pdf"), help="Custom directory to save file.")
+    # parser.add_argument('-o', '--output', action="store", default=Path("path/to/byngo-boards.pdf"), help="Custom directory to save file.")
 
     parser.add_argument('-x', '--no-free', action='store_true', default=False, help="Remove free space.")
     parser.add_argument('-i', '--num-players', action='store', default=1, type=int, help="Number of players/grids.")
     parser.add_argument('-g', '--grid-size', action='store', default=5, type=int, choices=range(3, 6), help="Size of grid: 3x3, 4x4, or 5x5.")
     parser.add_argument('-m', '--min', action='store', default=1, type=int, help="Minimum value to appear on the grid.")
     parser.add_argument('-n', '--max', action='store', default=50, type=int, help="Maximum value to appear on the grid.")
+    parser.add_argument('-t', '--title', action='store', default="Byngo Board", type=str, help="A title for the game grid.")
     # parser.add_argument('-p', '--page', action='store', default=4, type=int, choices={1, 2, 4}, help="1, 2, or 4 grids/page when exporting.")
 
 
@@ -49,7 +50,6 @@ def arguments():
 def generateGrid(min: int=1, max: int=50, grid: int=5):
         if min >= max:
             raise ValueError(f"Minimum value ({min}) cannot be greater than maximum value ({max}).")
-
         if min < 0:
             raise ValueError(f"Minimum value ({min}) cannot be a negative.")
         elif max > 999:
@@ -76,6 +76,16 @@ def addFreeSpace(matrix, grid: int=5):
 
     matrix[row][col] = "FREE"
 
+def header(grid: int=5):
+    h = []
+    if grid == 3:
+        h = "BY N GO".split()
+    elif grid == 4:
+        h = "B Y N GO".split()
+    else:
+        h = "B Y N G O".split()
+        
+    return h
 
 def main(args):
     for x in range(0, args.num_players):
@@ -85,6 +95,8 @@ def main(args):
             addFreeSpace(matrix, args.grid_size)
 
         df = pd.DataFrame(matrix)
+        df.columns = header(args.grid_size)
+
         pd.set_option('colheader_justify', 'center')   # FOR TABLE <th>
 
         template = '''
@@ -92,8 +104,8 @@ def main(args):
         <head><title>HTML Pandas Dataframe with CSS</title></head>
         <link rel="stylesheet" type="text/css" href="style.css"/>
         <body>
-            <div id="pyngo-container">
-                <h1>PYNGO</h1>
+            <div id="byngo-container">
+                <h1>{title}</h1>
                 {table}
                 <script src="script.js"></script> 
             </div>
@@ -104,7 +116,7 @@ def main(args):
         # OUTPUT AN HTML FILE
         tempHTML = Path(f'temp{x}.html')
         with open(tempHTML, 'w') as f:
-            f.write(template.format(table=df.to_html(header=None, index=False, classes='mystyle')))
+            f.write(template.format(title=args.title, table=df.to_html(header=True, index=False, classes='mystyle')))
 
         converter.convert(f'file:///{tempHTML.resolve()}', f'temp{x}.pdf')
         tempHTML.unlink()
@@ -115,9 +127,13 @@ def main(args):
     for pdf in pdfs:
         merger.append(pdf)
 
-    merger.write("pyngo-boards.pdf")
-    merger.close()
-    
+    try:
+        merger.write("byngo-boards.pdf")
+        merger.close()
+    except PermissionError as error:
+        print(f"{error}\nClose PDF and run again.\n")
+        sys.exit(-1)
+
     # Clean-up
     print("Cleaning up...")
     pdfs = [ x for x in Path(r'./').glob('*temp*.pdf') if x.is_file() ]
