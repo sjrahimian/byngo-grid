@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
-""" Byngo Board
+""" Byngo Card
 
-    Random bingo board generator.
+    Random bingo card generator.
 """
 
 __author__ = [""]
 __email__ = [""]
 __maintainer__ = [""]
 __credits__ = [__author__, ""]
-__title__ = "Byngo Board"
+__title__ = "Byngo Card"
 __copyright__ = "Copyright 2024"
 __version__ = "0.0.1"
 __status__ = "development"
@@ -30,16 +30,16 @@ print()
 
 
 def arguments(): 
-    parser = argparse.ArgumentParser(prog='Byngo Board', description='Random bingo board generator.', epilog='')
+    parser = argparse.ArgumentParser(prog='Byngo Card', description='Random bingo card generator.', epilog='')
 
-    # parser.add_argument('-o', '--output', action="store", default=Path("path/to/byngo-boards.pdf"), help="Custom directory to save file.")
+    # parser.add_argument('-o', '--output', action="store", default=Path("path/to/byngo-cards.pdf"), help="Custom directory to save file.")
 
     parser.add_argument('-x', '--no-free', action='store_true', default=False, help="Remove free space.")
     parser.add_argument('-i', '--num-players', action='store', default=1, type=int, help="Number of players/grids.")
     parser.add_argument('-g', '--grid-size', action='store', default=5, type=int, choices=range(3, 6), help="Size of grid: 3x3, 4x4, or 5x5.")
     parser.add_argument('-m', '--min', action='store', default=1, type=int, help="Minimum value to appear on the grid.")
     parser.add_argument('-n', '--max', action='store', default=50, type=int, help="Maximum value to appear on the grid.")
-    parser.add_argument('-t', '--title', action='store', default="Byngo Board", type=str, help="A title for the game grid.")
+    parser.add_argument('-t', '--title', action='store', default="Byngo Card", type=str, help="A title for the game grid.")
     # parser.add_argument('-p', '--page', action='store', default=4, type=int, choices={1, 2, 4}, help="1, 2, or 4 grids/page when exporting.")
 
 
@@ -101,7 +101,7 @@ def main(args):
 
         template = '''
         <html>
-        <head><title>HTML Pandas Dataframe with CSS</title></head>
+        <head><title></title></head>
         <link rel="stylesheet" type="text/css" href="style.css"/>
         <body>
             <div id="byngo-container">
@@ -128,7 +128,7 @@ def main(args):
         merger.append(pdf)
 
     try:
-        merger.write("byngo-boards.pdf")
+        merger.write("byngo-cards.pdf")
         merger.close()
     except PermissionError as error:
         print(f"{error}\nClose PDF and run again.\n")
