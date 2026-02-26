@@ -1,6 +1,6 @@
 # Byngo Card Generator
 
-Generates random bingo cards based on a given values (or go with the defaults).
+Generates random bingo cards based on a given values (or go with the defaults) and export to PDF.
 
 ## Run
 
