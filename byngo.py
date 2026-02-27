@@ -10,7 +10,7 @@ __email__ = [""]
 __credits__ = [__author__, ""]
 __title__ = "Byngo Card"
 __copyright__ = f"{__title__} © 2024"
-__version__ = "0.7.0"
+__version__ = "0.7.1"
 __status__ = "development"
 __license__ = "Unlicense"
 
@@ -44,7 +44,7 @@ def arguments():
     parser.add_argument('-t', '--title', action='store', default=f"{__title__}", type=str, help="Place a custom title for the game card")
 
     # PDF options
-    parser.add_argument('-f', '--filename', action="store", default="byngo-cards.pdf", type=str, help="Provide PDF filename.")
+    parser.add_argument('-f', '--file', action="store", default="byngo-cards.pdf", type=str, help="Provide PDF filename.")
     parser.add_argument('-p', '--per-page', type=int, choices={1, 2, 4}, default=4, help='Cards per PDF page')
     parser.add_argument('-H', '--headers', action='store_true', help='Include an extra row for the column headers.')
 
@@ -242,60 +242,23 @@ def main(args):
     cards = generateMultipleCards(args)
 
     pd.set_option('colheader_justify', 'center')   # FOR TABLE <th>
-    template = '''
-    <html>
-    <head><title></title></head>
-    <link rel="stylesheet" type="text/css" href="style.css"/>
-    <body>
-        <div id="byngo-container">
-            <h1>{title}</h1>
-            {table}
-            <script src="script.js"></script> 
-        </div>
-    </body>
-    </html>
-    '''
 
-    # for i, card in enumerate(cards):
-    #     print(f"Printing card {i + 1} of {len(cards)}...")
-
-    #     # OUTPUT AN HTML FILE
-    #     tempHTML = Path(f'temp.{i}.html')
-    #     with open(tempHTML, 'w') as f:
-    #         f.write(template.format(title=args.title, table=card.to_html(header=True, index=False, classes='mystyle')))
-
-    #     converter.convert(f'file:///{tempHTML.resolve()}', f'temp.{i}.pdf')
-    #     tempHTML.unlink()
-
-    # print("Packaging neatly...")
-    # merger = PdfWriter()
-    # pdfs = [ x for x in Path('./').glob('*temp.*.pdf') if x.is_file() ]
-    # for pdf in pdfs:
-    #     merger.append(pdf)
-
-    # try:
-    #     merger.write("byngo-cards.pdf")
-    #     merger.close()
-    # except PermissionError as error:
-    #     print(f"{error}\nClose PDF and run again.\n")
-    #     sys.exit(-1)
-
-    # Clean-up
-    print("Cleaning up...")
-    pdfs = [ x for x in Path(r'./').glob('*temp*.pdf') if x.is_file() ]
-    for pdf in pdfs:
-        pdf.unlink()
-
+    try:
+        print("NEW PRINTING METHOD")
+        export_to_pdf(args, cards, args.file)
+    except PermissionError as error:
+        print(f"{error}\nClose PDF and run again.\n")
+        sys.exit(-1)
 
     print("Finished.")
 
-    print("NEW PRINTING METHOD")
-    export_to_pdf(args, cards, "new-bingo_cards.pdf")
 
 if __name__ == "__main__":
-    args = arguments()
-    main(args)
+    try:
+        args = arguments()
+        main(args)
+    except KeyboardInterrupt:
+        sys.exit(-1)
 
-
-sys.exit(0)
+    sys.exit(0)
 
