@@ -80,7 +80,6 @@ jobs:
         shell: bash
         run: |
           pyinstaller --onefile \
-            --noconsole \
             --collect-all gooey \
             --name "byngo-${{ env.APP_VERSION }}-${{ matrix.os_short }}" \
             byngo.py
