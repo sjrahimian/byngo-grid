@@ -10,7 +10,7 @@ __email__ = [""]
 __credits__ = [__author__, ""]
 __title__ = "Byngo Card"
 __copyright__ = f"{__title__} © 2024"
-__version__ = "0.7.5"
+__version__ = "0.7.6"
 __status__ = "development"
 __license__ = "Unlicense"
 
@@ -154,7 +154,8 @@ def export_to_pdf(args, cards, filename):
     
     cfg = layout_configs[args.per_page]
     width, height = 250, 250 # cell size
-    padding = 40
+    padding, panelRowPadding = 40, 40
+
     
     # Calculate cell distribution
     for i, df in enumerate(cards):
@@ -167,9 +168,9 @@ def export_to_pdf(args, cards, filename):
         
         # Calculate X and Y coordinates (ReportLab Y starts at bottom)
         x_offset = padding + (col * (width + padding))
-        y_offset = pageHeight - ((row + 1) * (height + padding))
+        y_offset = pageHeight - ((row + 1) * (height + padding + panelRowPadding))
         
-        draw_card(c, df, x_offset, y_offset, width, height, args.no_headers)
+        draw_card(c, df, x_offset, y_offset, width, height, args.no_headers, args.title)
         
         # If page is full or it's the last card, start a new page
         if (i + 1) % args.per_page == 0 and (i + 1) < len(cards):
@@ -179,7 +180,7 @@ def export_to_pdf(args, cards, filename):
     c.save()
     print("completed")
 
-def draw_card(canvas_obj, df, x, y, card_w, card_h, headers=False):
+def draw_card(canvas_obj, df, x, y, card_w, card_h, headers=False, title=None):
     """
     Draws a single bingo card. 
     Adjusts cell height based on whether headers are included.
@@ -192,6 +193,12 @@ def draw_card(canvas_obj, df, x, y, card_w, card_h, headers=False):
     
     cell_w = card_w / num_cols
     cell_h = card_h / total_visual_rows
+
+    # Add title
+    if title:
+        canvas_obj.setFont("Helvetica-Bold", 16)
+        canvas_obj.setFillColor(colors.black)
+        canvas_obj.drawCentredString(x + (card_w / 2), y + card_h + 12, str(title))
     
     # Draw Outer Border
     canvas_obj.setLineWidth(2)
