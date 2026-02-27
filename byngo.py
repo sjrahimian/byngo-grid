@@ -9,8 +9,8 @@ __author__ = ["Sama Rahimian"]
 __email__ = [""]
 __credits__ = [__author__, ""]
 __title__ = "Byngo Card"
-__copyright__ = f"{__title__} © 2024"
-__version__ = "0.7.6"
+__copyright__ = f"© {__title__}"
+__version__ = "0.7.7"
 __status__ = "development"
 __license__ = "Unlicense"
 
@@ -47,7 +47,7 @@ def arguments():
     pdf_parser.add_argument('-f', '--file', action="store", default="byngo-cards.pdf", type=str, help="Provide PDF filename.")
     pdf_parser.add_argument('-H', '--no-headers', action='store_false', help='Remove the extra row for the column headers.')
     pdf_parser.add_argument('-p', '--per-page', type=int, choices={1, 2, 4}, default=4, help='Cards per PDF page')
-    pdf_parser.add_argument('-t', '--title', action='store', default=f"{__title__}", type=str, help="Place a custom title for the game card")
+    pdf_parser.add_argument('-t', '--title', action='store', default=None, type=str, help="Place a custom title for the game card")
 
     return parser.parse_args()
 
@@ -205,7 +205,7 @@ def draw_card(canvas_obj, df, x, y, card_w, card_h, headers=False, title=None):
     canvas_obj.rect(x, y, card_w, card_h)
     canvas_obj.setLineWidth(1)
 
-    # 1. Handle Headers
+    # Handle Headers
     current_y = y + card_h
     if headers:
         canvas_obj.setFont("Helvetica-Bold", 14)
@@ -216,7 +216,7 @@ def draw_card(canvas_obj, df, x, y, card_w, card_h, headers=False, title=None):
             canvas_obj.rect(cell_x, current_y - cell_h, cell_w, cell_h)
         current_y -= cell_h # Move the starting point for data rows down
 
-    # 2. Handle Data Rows
+    # Handle Data Rows
     canvas_obj.setFont("Helvetica", 12)
     for r_idx in range(num_data_rows):
         row_y = current_y - ((r_idx + 1) * cell_h)
@@ -234,7 +234,16 @@ def draw_card(canvas_obj, df, x, y, card_w, card_h, headers=False, title=None):
                 
             canvas_obj.drawCentredString(cell_x + (cell_w/2), row_y + (cell_h * 0.35), str(val))
             canvas_obj.rect(cell_x, row_y, cell_w, cell_h)
-            
+
+    # Signature
+    canvas_obj.setFont("Helvetica", 8)
+    canvas_obj.setFillColor(colors.grey)
+    
+    # We use x + card_w to align with the right edge, 
+    # and y - 10 to place it just below the bottom border
+    app_string = f"{__copyright__}"
+    canvas_obj.drawRightString(x + card_w, y - 10, app_string)
+
     canvas_obj.setFillColor(colors.black) # Reset
 
 def main(args):
