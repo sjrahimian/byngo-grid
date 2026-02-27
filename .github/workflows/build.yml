@@ -67,6 +67,7 @@ jobs:
           mkdir -p recipe
           cp byngo.py recipe/
           cp resources/byngo.desktop recipe/
+          cp resources/icon.png recipe/
           
           python3 -m python_appimage build app recipe/
           
