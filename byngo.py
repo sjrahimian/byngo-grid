@@ -10,7 +10,7 @@ __email__ = [""]
 __credits__ = [__author__, ""]
 __title__ = "Byngo Card"
 __copyright__ = f"{__title__} © 2024"
-__version__ = "0.6.0"
+__version__ = "0.7.0"
 __status__ = "development"
 __license__ = "Unlicense"
 
@@ -23,6 +23,10 @@ from math import ceil
 
 # 3rd party Libs
 import pandas as pd
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+
 from pyhtml2pdf import converter
 from pypdf import PdfWriter
 
@@ -136,23 +140,19 @@ def generateMultipleCards(args):
             
     return cards
 
-
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from reportlab.lib import colors
-
 def export_to_pdf(args, cards, filename):
     c = canvas.Canvas(filename, pagesize=letter)
-    width, height = letter
+    pageWidth, pageHeight = letter
     
     # Configuration based on cards per page
     layout_configs = {
-        1: {"cols": 1, "rows": 1, "width": 400, "height": 400},
-        2: {"cols": 1, "rows": 2, "width": 350, "height": 350},
-        4: {"cols": 2, "rows": 2, "width": 250, "height": 250}
+        1: {"cols": 1, "rows": 1},
+        2: {"cols": 1, "rows": 2},
+        4: {"cols": 2, "rows": 2}
     }
     
     cfg = layout_configs[args.per_page]
+    width, height = 250, 250 # cell size
     padding = 40
     
     # Calculate cell distribution
@@ -165,10 +165,10 @@ def export_to_pdf(args, cards, filename):
         row = pos_on_page // cfg["cols"]
         
         # Calculate X and Y coordinates (ReportLab Y starts at bottom)
-        x_offset = padding + (col * (cfg["width"] + padding))
-        y_offset = height - ((row + 1) * (cfg["height"] + padding))
+        x_offset = padding + (col * (width + padding))
+        y_offset = pageHeight - ((row + 1) * (height + padding))
         
-        draw_card(c, df, x_offset, y_offset, cfg["width"], cfg["height"], args.headers)
+        draw_card(c, df, x_offset, y_offset, width, height, args.headers)
         
         # If page is full or it's the last card, start a new page
         if (i + 1) % args.per_page == 0 and (i + 1) < len(cards):
@@ -256,29 +256,29 @@ def main(args):
     </html>
     '''
 
-    for i, card in enumerate(cards):
-        print(f"Printing card {i + 1} of {len(cards)}...")
+    # for i, card in enumerate(cards):
+    #     print(f"Printing card {i + 1} of {len(cards)}...")
 
-        # OUTPUT AN HTML FILE
-        tempHTML = Path(f'temp.{i}.html')
-        with open(tempHTML, 'w') as f:
-            f.write(template.format(title=args.title, table=card.to_html(header=True, index=False, classes='mystyle')))
+    #     # OUTPUT AN HTML FILE
+    #     tempHTML = Path(f'temp.{i}.html')
+    #     with open(tempHTML, 'w') as f:
+    #         f.write(template.format(title=args.title, table=card.to_html(header=True, index=False, classes='mystyle')))
 
-        converter.convert(f'file:///{tempHTML.resolve()}', f'temp.{i}.pdf')
-        tempHTML.unlink()
+    #     converter.convert(f'file:///{tempHTML.resolve()}', f'temp.{i}.pdf')
+    #     tempHTML.unlink()
 
-    print("Packaging neatly...")
-    merger = PdfWriter()
-    pdfs = [ x for x in Path('./').glob('*temp.*.pdf') if x.is_file() ]
-    for pdf in pdfs:
-        merger.append(pdf)
+    # print("Packaging neatly...")
+    # merger = PdfWriter()
+    # pdfs = [ x for x in Path('./').glob('*temp.*.pdf') if x.is_file() ]
+    # for pdf in pdfs:
+    #     merger.append(pdf)
 
-    try:
-        merger.write("byngo-cards.pdf")
-        merger.close()
-    except PermissionError as error:
-        print(f"{error}\nClose PDF and run again.\n")
-        sys.exit(-1)
+    # try:
+    #     merger.write("byngo-cards.pdf")
+    #     merger.close()
+    # except PermissionError as error:
+    #     print(f"{error}\nClose PDF and run again.\n")
+    #     sys.exit(-1)
 
     # Clean-up
     print("Cleaning up...")
