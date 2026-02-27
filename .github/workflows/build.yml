@@ -29,34 +29,29 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
-      - name: Install dependencies
+      - name: Install Linux Dependencies
+        if: matrix.os == 'ubuntu-latest'
         run: |
-          python -m pip install --upgrade pip
-          
-          # Linux-specific: Install GTK and build dependencies for wxPython
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo apt-get update
-            sudo apt-get install -y libgtk-3-dev libnotify-dev libsdl2-dev libfreeimage-dev libtinyxml2-dev libsuil-dev libmspack-dev
-          fi
-
-          # Install pandas and reportlab first
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libnotify-dev libsdl2-dev libfreeimage-dev libtinyxml2-dev libsuil-dev libmspack-dev
           pip install pandas reportlab pyinstaller
-          
-          # Install wxPython from the Extras repository (much faster/more reliable for Linux)
-          # This avoids the "Building wheel..." error by using a pre-compiled version
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            pip install -U -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-22.04 wxPython
-          fi
-          
+          # Install pre-built wxPython wheel for Ubuntu
+          pip install -U -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-22.04 wxPython
           pip install gooey
 
-      - name: Get Version (Linux)
+      - name: Install Windows Dependencies
+        if: matrix.os == 'windows-latest'
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas reportlab pyinstaller gooey
+
+      - name: Get app version (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
           VERSION=$(grep "__version__" byngo.py | cut -d'"' -f2)
           echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: Get Version (Windows)
+      - name: Get app version (Windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
