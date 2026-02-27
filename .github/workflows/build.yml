@@ -63,28 +63,28 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           pip install python-appimage
-
+          
+          # Prepare resources
           cp resources/byngo.desktop .
           cp resources/icon.png .
-
-          # Create the AppDir and bundle everything by using the 'python_appimage' to build
-          # This bundles the interpreter and your requirements.txt
-          python3 -m python_appimage build local \
-            -e byngo.py \
-            --desktop-file byngo.desktop \
-            --icon-file icon.png
           
+          # Use 'build app' which is designed for packaging a single script
+          # We pass the requirements so it bundles pandas, gooey, etc.
+          python3 -m python_appimage build app \
+            --entry-point byngo.py \
+            --desktop-file byngo.desktop \
+            --icon-file icon.png \
+            --python-version 3.12
+          
+          # python-appimage outputs a file usually named after the Entry Point
           mv *.AppImage "byngo-${{ env.APP_VERSION }}-${{ matrix.os_short }}.AppImage"
         env:
-          # python-appimage needs to know which extra libs to include for wxPython
           APPIMAGE_EXTRA_LIBS: "libgtk-3.so.0;libnotify.so.4;libsdl2-2.0.so.0"
 
-      - name: Build with PyInstaller (Windows/Linux)
+      - name: Build with PyInstaller (Windows)
+        if: matrix.os == 'windows-latest'
         shell: bash
         run: |
-          # --collect-all gooey: Ensures all GUI assets are included
-          # --noconsole: Prevents a black terminal from popping up behind the GUI
-          # --hidden-import: Ensures wxPython components are linked
           pyinstaller --onefile \
             --noconsole \
             --collect-all gooey \
