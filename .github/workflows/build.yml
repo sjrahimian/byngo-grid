@@ -64,16 +64,14 @@ jobs:
         run: |
           pip install python-appimage
           
-          # Prepare resources
-          cp resources/byngo.desktop .
-          cp resources/icon.png .
+          mkdir -p recipe
+          cp byngo.py recipe/
+          cp resources/byngo.desktop recipe/
+          cp resources/icon.png recipe/
           
-          # Use 'build app' which is designed for packaging a single script
-          # We pass the requirements so it bundles pandas, gooey, etc.
-          python3 -m python_appimage build app \
+          python3 -m python_appimage build app recipe \
             --entry-point byngo.py \
             --desktop-file byngo.desktop \
-            --icon-file icon.png \
             --python-version 3.12
           
           # python-appimage outputs a file usually named after the Entry Point
