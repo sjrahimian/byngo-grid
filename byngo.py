@@ -10,7 +10,7 @@ __email__ = [""]
 __credits__ = [__author__, ""]
 __title__ = "Byngo Cards"
 __copyright__ = f"{__title__} © 2026"
-__version__ = "9.0"
+__version__ = "0.9"
 __status__ = "development"
 __license__ = "Unlicense"
 
