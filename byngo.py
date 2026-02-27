@@ -10,7 +10,7 @@ __email__ = [""]
 __credits__ = [__author__, ""]
 __title__ = "Byngo Card"
 __copyright__ = f"{__title__} © 2024"
-__version__ = "0.7.1"
+__version__ = "0.7.5"
 __status__ = "development"
 __license__ = "Unlicense"
 
@@ -41,12 +41,13 @@ def arguments():
 
     parser.add_argument('-c', '--num_cards', action='store', default=1, type=int, help="Number of cards to be generated (max=100)")
     parser.add_argument('-g', '--grid', action='store', default=5, type=int, choices=range(3, 6), help="Size of grid: 3x3, 4x4, or 5x5")
-    parser.add_argument('-t', '--title', action='store', default=f"{__title__}", type=str, help="Place a custom title for the game card")
 
     # PDF options
-    parser.add_argument('-f', '--file', action="store", default="byngo-cards.pdf", type=str, help="Provide PDF filename.")
-    parser.add_argument('-p', '--per-page', type=int, choices={1, 2, 4}, default=4, help='Cards per PDF page')
-    parser.add_argument('-H', '--headers', action='store_true', help='Include an extra row for the column headers.')
+    pdf_parser = parser.add_argument_group("PDF Options")
+    pdf_parser.add_argument('-f', '--file', action="store", default="byngo-cards.pdf", type=str, help="Provide PDF filename.")
+    pdf_parser.add_argument('-H', '--no-headers', action='store_false', help='Remove the extra row for the column headers.')
+    pdf_parser.add_argument('-p', '--per-page', type=int, choices={1, 2, 4}, default=4, help='Cards per PDF page')
+    pdf_parser.add_argument('-t', '--title', action='store', default=f"{__title__}", type=str, help="Place a custom title for the game card")
 
     return parser.parse_args()
 
@@ -121,8 +122,8 @@ def generateMultipleCards(args):
     cards = []
     seenSignatures = set()
     gridSize = f'{args.grid}x{args.grid}'
-    print(f'Selected grid size of "{gridSize}", and {args.num_cards} card(s) to be generated.')
-    print("Generating cards...")
+    print(f'Selected grid size of "{gridSize}", and {args.num_cards} card(s) to be generated')
+    print("Generating cards")
 
     # Keep generating until we have the exact number of unique cards requested
     while len(cards) < args.num_cards:
@@ -157,7 +158,7 @@ def export_to_pdf(args, cards, filename):
     
     # Calculate cell distribution
     for i, df in enumerate(cards):
-        print(f"Printing card {i + 1} of {len(cards)}...")
+        print(f" >> preparing card {i + 1} of {len(cards)}")
 
         # Determine position on current page
         pos_on_page = i % args.per_page
@@ -168,13 +169,15 @@ def export_to_pdf(args, cards, filename):
         x_offset = padding + (col * (width + padding))
         y_offset = pageHeight - ((row + 1) * (height + padding))
         
-        draw_card(c, df, x_offset, y_offset, width, height, args.headers)
+        draw_card(c, df, x_offset, y_offset, width, height, args.no_headers)
         
         # If page is full or it's the last card, start a new page
         if (i + 1) % args.per_page == 0 and (i + 1) < len(cards):
             c.showPage()
             
+    print("Saving to PDF...", end="")
     c.save()
+    print("completed")
 
 def draw_card(canvas_obj, df, x, y, card_w, card_h, headers=False):
     """
@@ -230,27 +233,25 @@ def draw_card(canvas_obj, df, x, y, card_w, card_h, headers=False):
 def main(args):
     print(args)
     if not (1 <= args.num_cards <= 100):
-        print(f"Error: You requested {args.count} cards, but the limit is 100.")
+        print(f"Error: You requested {args.num_cards} cards, but the limit is 100.")
         sys.exit(1)
 
     if args.free_space is True:
-        print("User forced FREE SPACE on.")
+        print("FREE SPACE on")
     elif args.free_space is False:
-        print("User forced FREE SPACE off.")
+        print("FREE SPACE off")
 
 
     cards = generateMultipleCards(args)
 
-    pd.set_option('colheader_justify', 'center')   # FOR TABLE <th>
-
     try:
-        print("NEW PRINTING METHOD")
+        print("Exporting to PDF...")
         export_to_pdf(args, cards, args.file)
     except PermissionError as error:
         print(f"{error}\nClose PDF and run again.\n")
         sys.exit(-1)
 
-    print("Finished.")
+    print("Finished")
 
 
 if __name__ == "__main__":
