@@ -4,7 +4,7 @@ Generate bingo cards and export to PDF.
 
 ## Getting Started
 
-Download the application from the latest [releases page](https://github.com/sjrahimian/game-library-index/releases/latest) for the target operating system.
+Download the application from the latest [releases page](https://github.com/sjrahimian/byngo-cards/releases/latest) for the target operating system.
 
 If you try running the executable without any arguments (e.g., `-h\--help`), it will launch a basic GUI.
 
