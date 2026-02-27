@@ -14,7 +14,7 @@ Then open your command line interface and run by executing the `byngo.exe`.
 
 #### Card Options
 
-* Number of cards (max = 100)
+* Number of cards (1 - 100)
 * Grid size: 3x3, 4x4, or 5x5
 * Add or remove free space override
 
