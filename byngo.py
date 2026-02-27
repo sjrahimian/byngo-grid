@@ -8,27 +8,28 @@
 __author__ = ["Sama Rahimian"]
 __email__ = [""]
 __credits__ = [__author__, ""]
-__title__ = "Byngo Card"
-__copyright__ = f"© {__title__}"
-__version__ = "0.7.9"
+__title__ = "Byngo Cards"
+__copyright__ = f"{__title__} © 2026"
+__version__ = "0.8.0"
 __status__ = "development"
 __license__ = "Unlicense"
 
 
 import argparse
+from datetime import datetime as dt
 from pathlib import Path
-import sys
 import random
-from math import ceil
+import sys
 
 # 3rd party Libs
+from gooey import Gooey
 import pandas as pd
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 
 def arguments(): 
-    parser = argparse.ArgumentParser(description='Generate unique bingo cards and export to PDF.', epilog='')
+    parser = argparse.ArgumentParser(description='Generate bingo cards and export to PDF.', epilog='')
 
     # Bingo card options
     card_parser = parser.add_argument_group("Card Options")
@@ -37,21 +38,17 @@ def arguments():
     freeSpaceGroup.add_argument('-x', '--no-free-space', action='store_false', dest='free_space', help='Remove free space')
     card_parser.set_defaults(free_space=None)
 
-    card_parser.add_argument('-c', '--num_cards', action='store', default=1, type=int, help="Number of cards to be generated (max=100)")
+    card_parser.add_argument('-c', '--num_cards', action='store', default=1, type=int, help="Number of cards to be generated (1 - 100)")
     card_parser.add_argument('-g', '--grid', action='store', choices=range(3, 6), default=5, type=int, help="Size of grid: 3x3, 4x4, or 5x5")
 
     # PDF options
     pdf_parser = parser.add_argument_group("PDF Options")
     pdf_parser.add_argument('-f', '--file', action="store", default="byngo-cards.pdf", type=str, help="Provide PDF filename.")
-    pdf_parser.add_argument('-H', '--no-headers', action='store_false', help='Remove the extra row for the column headers.')
+    pdf_parser.add_argument('-H', '--no-header', action='store_false', help='Remove the extra row for the column headers.')
     pdf_parser.add_argument('-p', '--per-page', action="store", choices={1, 2, 4}, default=4, type=int, help='Cards per PDF page')
     pdf_parser.add_argument('-t', '--title', action='store', default=None, type=str, help="Place a custom title for the game card")
 
     return parser.parse_args()
-
-
-import pandas as pd
-import random
 
 def generateBingoCard(gridSize=None, freeSpaceOverride=None):
     """
@@ -120,8 +117,8 @@ def generateMultipleCards(args):
     cards = []
     seenSignatures = set()
     gridSize = f'{args.grid}x{args.grid}'
-    print(f'Selected grid size of "{gridSize}", and {args.num_cards} card(s) to be generated')
-    print("Generating cards")
+    print(f'Grid size "{gridSize}" selected.')
+    print(f"Generating {args.num_cards} cards.")
 
     # Keep generating until we have the exact number of unique cards requested
     while len(cards) < args.num_cards:
@@ -142,6 +139,11 @@ def generateMultipleCards(args):
 def export_to_pdf(args, cards, filename):
     c = canvas.Canvas(filename, pagesize=letter)
     pageWidth, pageHeight = letter
+
+    # Add page title
+    c.setFont("Helvetica-Bold", 24)
+    c.setFillColor(colors.black)
+    c.drawCentredString(pageWidth / 2, pageHeight - 40, str(f'{__title__}, v{__version__}'))
     
     # Configuration based on cards per page
     layout_configs = {
@@ -152,8 +154,7 @@ def export_to_pdf(args, cards, filename):
     
     cfg = layout_configs[args.per_page]
     width, height = 250, 250 # cell size
-    padding, panelRowPadding = 40, 40
-
+    padding, panelRowPadding = 40, 60
     
     # Calculate cell distribution
     for i, df in enumerate(cards):
@@ -168,15 +169,18 @@ def export_to_pdf(args, cards, filename):
         x_offset = padding + (col * (width + padding))
         y_offset = pageHeight - ((row + 1) * (height + padding + panelRowPadding))
         
-        draw_card(c, df, x_offset, y_offset, width, height, args.no_headers, args.title)
+        draw_card(c, df, x_offset, y_offset, width, height, args.no_header, args.title)
         
         # If page is full or it's the last card, start a new page
         if (i + 1) % args.per_page == 0 and (i + 1) < len(cards):
             c.showPage()
+            c.setFont("Helvetica-Bold", 24)
+            c.setFillColor(colors.black)
+            c.drawCentredString(pageWidth / 2, pageHeight - 40, str(f'{__title__}, v{__version__}'))
             
-    print("Saving to PDF...", end="")
+    print("Saving PDF...", end="")
     c.save()
-    print("completed")
+    print("completed.")
 
 def draw_card(canvas_obj, df, x, y, card_w, card_h, headers=False, title=None):
     """
@@ -192,18 +196,18 @@ def draw_card(canvas_obj, df, x, y, card_w, card_h, headers=False, title=None):
     cell_w = card_w / num_cols
     cell_h = card_h / total_visual_rows
 
-    # Add title
+    # Add card title
     if title:
         canvas_obj.setFont("Helvetica-Bold", 16)
         canvas_obj.setFillColor(colors.black)
         canvas_obj.drawCentredString(x + (card_w / 2), y + card_h + 12, str(title))
     
-    # Draw Outer Border
+    # Draw outer border
     canvas_obj.setLineWidth(2)
     canvas_obj.rect(x, y, card_w, card_h)
     canvas_obj.setLineWidth(1)
 
-    # Handle Headers
+    # Handle column headers
     current_y = y + card_h
     if headers:
         canvas_obj.setFont("Helvetica-Bold", 14)
@@ -214,7 +218,7 @@ def draw_card(canvas_obj, df, x, y, card_w, card_h, headers=False, title=None):
             canvas_obj.rect(cell_x, current_y - cell_h, cell_w, cell_h)
         current_y -= cell_h # Move the starting point for data rows down
 
-    # Handle Data Rows
+    # Handle data rows
     canvas_obj.setFont("Helvetica", 12)
     for r_idx in range(num_data_rows):
         row_y = current_y - ((r_idx + 1) * cell_h)
@@ -234,26 +238,34 @@ def draw_card(canvas_obj, df, x, y, card_w, card_h, headers=False, title=None):
             canvas_obj.rect(cell_x, row_y, cell_w, cell_h)
 
     # Signature
-    canvas_obj.setFont("Helvetica", 8)
+    canvas_obj.setFont("Helvetica-BoldOblique", 8)
     canvas_obj.setFillColor(colors.grey)
     
     # We use x + card_w to align with the right edge, 
     # and y - 10 to place it just below the bottom border
-    app_string = f"{__copyright__}"
+    app_string = f"{__title__} © {dt.now().year}"
     canvas_obj.drawRightString(x + card_w, y - 10, app_string)
 
     canvas_obj.setFillColor(colors.black) # Reset
 
+def run_cli():
+    args = arguments()
+    main(args)
+
+@Gooey(program_name=f"{__title__} Generator GUI", use_cmd_args=True, suppress_gooey_flag=True, navigation='simple')
+def run_gui():
+    args = arguments()
+    main(args)
+
 def main(args):
-    print(args)
     if not (1 <= args.num_cards <= 100):
         print(f"Error: You requested {args.num_cards} cards, but the limit is 100.")
         sys.exit(1)
 
     if args.free_space is True:
-        print("FREE SPACE on")
+        print("FREE SPACE on.")
     elif args.free_space is False:
-        print("FREE SPACE off")
+        print("FREE SPACE off.")
 
 
     cards = generateMultipleCards(args)
@@ -265,13 +277,12 @@ def main(args):
         print(f"{error}\nClose PDF and run again.\n")
         sys.exit(-1)
 
-    print("Finished")
+    print("Done!")
 
 
 if __name__ == "__main__":
     try:
-        args = arguments()
-        main(args)
+        run_cli() if len(sys.argv) > 1 else run_gui()
     except KeyboardInterrupt:
         sys.exit(-1)
 
