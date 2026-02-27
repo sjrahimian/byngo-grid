@@ -68,7 +68,7 @@ jobs:
           cp byngo.py recipe/
           cp resources/byngo.desktop recipe/
           
-          python3 -m python_appimage build recipe/
+          python3 -m python_appimage build app recipe/
           
           mv *.AppImage "byngo-${{ env.APP_VERSION }}-${{ matrix.os_short }}.AppImage"
         env:
