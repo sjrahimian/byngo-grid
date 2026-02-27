@@ -10,7 +10,7 @@ __email__ = [""]
 __credits__ = [__author__, ""]
 __title__ = "Byngo Card"
 __copyright__ = f"© {__title__}"
-__version__ = "0.7.8"
+__version__ = "0.7.9"
 __status__ = "development"
 __license__ = "Unlicense"
 
@@ -28,22 +28,23 @@ from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 
 def arguments(): 
-    parser = argparse.ArgumentParser(description='Generate unique random bingo cards and export to PDF.', epilog='')
+    parser = argparse.ArgumentParser(description='Generate unique bingo cards and export to PDF.', epilog='')
 
     # Bingo card options
-    freeSpaceGroup = parser.add_mutually_exclusive_group()
+    card_parser = parser.add_argument_group("Card Options")
+    freeSpaceGroup = card_parser.add_mutually_exclusive_group()
     freeSpaceGroup.add_argument('-F', '--free-space', action='store_true', help='Force a free space')
     freeSpaceGroup.add_argument('-x', '--no-free-space', action='store_false', dest='free_space', help='Remove free space')
-    parser.set_defaults(free_space=None)
+    card_parser.set_defaults(free_space=None)
 
-    parser.add_argument('-c', '--num_cards', action='store', default=1, type=int, help="Number of cards to be generated (max=100)")
-    parser.add_argument('-g', '--grid', action='store', default=5, type=int, choices=range(3, 6), help="Size of grid: 3x3, 4x4, or 5x5")
+    card_parser.add_argument('-c', '--num_cards', action='store', default=1, type=int, help="Number of cards to be generated (max=100)")
+    card_parser.add_argument('-g', '--grid', action='store', choices=range(3, 6), default=5, type=int, help="Size of grid: 3x3, 4x4, or 5x5")
 
     # PDF options
     pdf_parser = parser.add_argument_group("PDF Options")
     pdf_parser.add_argument('-f', '--file', action="store", default="byngo-cards.pdf", type=str, help="Provide PDF filename.")
     pdf_parser.add_argument('-H', '--no-headers', action='store_false', help='Remove the extra row for the column headers.')
-    pdf_parser.add_argument('-p', '--per-page', type=int, choices={1, 2, 4}, default=4, help='Cards per PDF page')
+    pdf_parser.add_argument('-p', '--per-page', action="store", choices={1, 2, 4}, default=4, type=int, help='Cards per PDF page')
     pdf_parser.add_argument('-t', '--title', action='store', default=None, type=str, help="Place a custom title for the game card")
 
     return parser.parse_args()
