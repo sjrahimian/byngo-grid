@@ -69,11 +69,12 @@ jobs:
 
           # Create the AppDir and bundle everything by using the 'python_appimage' to build
           # This bundles the interpreter and your requirements.txt
-          python3 -m python_appimage build tkinter byngo.py \
+          python3 -m python_appimage build local \
+            -e byngo.py \
             --desktop-file byngo.desktop \
             --icon-file icon.png
           
-          mv Byngo-x86_64.AppImage "byngo-${{ env.APP_VERSION }}-${{ matrix.os_short }}.AppImage"
+          mv *.AppImage "byngo-${{ env.APP_VERSION }}-${{ matrix.os_short }}.AppImage"
         env:
           # python-appimage needs to know which extra libs to include for wxPython
           APPIMAGE_EXTRA_LIBS: "libgtk-3.so.0;libnotify.so.4;libsdl2-2.0.so.0"
