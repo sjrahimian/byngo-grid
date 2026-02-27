@@ -48,21 +48,22 @@ jobs:
       - name: Get app version (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
-          VERSION=$(grep "__version__" byngo.py | cut -d'"' -f2)
+          VERSION=$(grep "__version__ =" byngo.py | cut -d'"' -f2)
           echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Get app version (Windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          $val = Get-Content byngo.py | Select-String "__version__"
+          $val = Get-Content byngo.py | Select-String -Pattern '^__version__\s*='
           $version = $val.ToString().Split('"')[1]
           echo "APP_VERSION=$version" >> $env:GITHUB_ENV
 
       - name: Build with PyInstaller
+        shell: bash
         run: |
           # --collect-all gooey: Ensures all GUI assets are included
-          # --noconsole: Prevents a black terminal from popping up behind the GUI (Windows)
+          # --noconsole: Prevents a black terminal from popping up behind the GUI
           # --hidden-import: Ensures wxPython components are linked
           pyinstaller --onefile \
             --noconsole \
