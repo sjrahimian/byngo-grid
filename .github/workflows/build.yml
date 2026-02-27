@@ -16,7 +16,7 @@ jobs:
             os_short: win
             ext: .exe
           - os: ubuntu-latest
-            os_short: lin
+            os_short: linux
             ext: ""
 
     steps:
@@ -26,7 +26,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
           cache: 'pip'
 
       - name: Install Linux Dependencies
@@ -48,7 +48,7 @@ jobs:
       - name: Get app version (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
-          VERSION=$(grep "__version__ =" byngo.py | cut -d'"' -f2)
+          VERSION=$(grep "^__version__ =" byngo.py | cut -d'"' -f2)
           echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Get app version (Windows)
@@ -59,7 +59,24 @@ jobs:
           $version = $val.ToString().Split('"')[1]
           echo "APP_VERSION=$version" >> $env:GITHUB_ENV
 
-      - name: Build with PyInstaller
+      - name: Build AppImage (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          # 1. Install python-appimage tool
+          pip install python-appimage
+
+          # 2. Create the AppDir and bundle everything
+          # We use the 'python -m python_appimage' to build
+          # This bundles the interpreter and your requirements.txt
+          python3 -m python_appimage build tkinter byngo.py
+          
+          # 3. Rename the resulting .AppImage to our versioned format
+          mv Byngo-x86_64.AppImage "byngo-${{ env.APP_VERSION }}-${{ matrix.os_short }}.AppImage"
+        env:
+          # python-appimage needs to know which extra libs to include for wxPython
+          APPIMAGE_EXTRA_LIBS: "libgtk-3.so.0;libnotify.so.4;libsdl2-2.0.so.0"
+
+      - name: Build with PyInstaller (Windows/Linux)
         shell: bash
         run: |
           # --collect-all gooey: Ensures all GUI assets are included
@@ -75,7 +92,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-binary
-          path: dist/byngo-${{ env.APP_VERSION }}-${{ matrix.os_short }}${{ matrix.ext }}
+          path: |
+          dist/byngo-*
+          *.AppImage
 
   release:
     name: Create Draft Release
