@@ -112,6 +112,6 @@ jobs:
           draft: true
           files: |
             binaries/*.AppImage
-            binaries/*.exe
+            binaries/**/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

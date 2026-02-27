@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-""" Byngo Card
+""" Byngo Cards Generator
 
     Random bingo card generator.
 """
@@ -10,7 +10,7 @@ __email__ = [""]
 __credits__ = [__author__, ""]
 __title__ = "Byngo Cards"
 __copyright__ = f"{__title__} © 2026"
-__version__ = "0.8.3"
+__version__ = "9.0"
 __status__ = "development"
 __license__ = "Unlicense"
 
@@ -27,10 +27,11 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 
-
+# Global
+MAX_CARDS = 100
 
 def cardTitleCharLimit(s: str) -> str:
-    limit = 30
+    limit = 32
     if len(s) > limit:
         raise argparse.ArgumentTypeError(f"Card title is too long ({len(s)}/{limit} characters max).")
     return s
@@ -38,16 +39,17 @@ def cardTitleCharLimit(s: str) -> str:
 def arguments(): 
     parser = argparse.ArgumentParser(description='Generate bingo cards and export to PDF.', epilog='')
 
+    parser.add_argument('-v', '--version', action='store_true', help="Print version and exit.")
+    
     # Bingo card options
     card_parser = parser.add_argument_group("Card Options")
-    card_parser.add_argument('-c', '--num_cards', action='store', default=1, type=int, help="Number of cards to be generated (1 - 100)")
+    card_parser.add_argument('-c', '--num_cards', action='store', default=1, type=int, help=f"Number of cards to be generated (1 - {MAX_CARDS})")
     card_parser.add_argument('-g', '--grid', action='store', choices=range(3, 6), default=5, type=int, help="Size of grid: 3x3, 4x4, or 5x5")
     
     freeSpaceGroup = card_parser.add_mutually_exclusive_group()
     freeSpaceGroup.add_argument('-F', '--free-space', action='store_true', help='Add a free space')
     freeSpaceGroup.add_argument('-x', '--no-free-space', action='store_false', dest='free_space', help='Remove free space')
     card_parser.set_defaults(free_space=None)
-
 
     # PDF options
     pdf_parser = parser.add_argument_group("PDF Options")
@@ -166,7 +168,7 @@ def export_to_pdf(args, cards, filename):
     
     # Calculate cell distribution
     for i, df in enumerate(cards):
-        print(f" >> preparing card {i + 1} of {len(cards)}")
+        print(f" >> drawing card {i + 1} of {len(cards)}")
 
         # Determine position on current page
         pos_on_page = i % args.per_page
@@ -267,9 +269,13 @@ def run_gui():
 
 def main(args):
     # print(args)
+    
+    if args.version:
+        print(f'{__title__}, v{__version__}')
+        sys.exit(0)
 
-    if not (1 <= args.num_cards <= 100):
-        print(f"Error: You requested {args.num_cards} cards, but the limit is 100.")
+    if not (1 <= args.num_cards <= MAX_CARDS):
+        print(f"Error: You requested {args.num_cards} cards, but the limit is {MAX_CARDS}.")
         sys.exit(1)
 
     if args.free_space is True:
