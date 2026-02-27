@@ -10,7 +10,7 @@ __email__ = [""]
 __credits__ = [__author__, ""]
 __title__ = "Byngo Cards"
 __copyright__ = f"{__title__} © 2026"
-__version__ = "0.8.0"
+__version__ = "0.8.1"
 __status__ = "development"
 __license__ = "Unlicense"
 
@@ -28,6 +28,12 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 
+def cardTitleCharLimit(s: str) -> str:
+    limit = 30
+    if len(s) > limit:
+        raise argparse.ArgumentTypeError(f"Card title is too long ({len(s)}/{limit} characters max).")
+    return s
+
 def arguments(): 
     parser = argparse.ArgumentParser(description='Generate bingo cards and export to PDF.', epilog='')
 
@@ -44,9 +50,9 @@ def arguments():
     # PDF options
     pdf_parser = parser.add_argument_group("PDF Options")
     pdf_parser.add_argument('-f', '--file', action="store", default="byngo-cards.pdf", type=str, help="Provide PDF filename.")
-    pdf_parser.add_argument('-H', '--no-header', action='store_false', help='Remove the extra row for the column headers.')
+    pdf_parser.add_argument('-H', '--no-headers', action='store_false', help='Remove the extra row for the column headers.')
     pdf_parser.add_argument('-p', '--per-page', action="store", choices={1, 2, 4}, default=4, type=int, help='Cards per PDF page')
-    pdf_parser.add_argument('-t', '--title', action='store', default=None, type=str, help="Place a custom title for the game card")
+    pdf_parser.add_argument('-t', '--title', action='store', default=None, type=cardTitleCharLimit, help="Place a custom title for the game card")
 
     return parser.parse_args()
 
@@ -169,7 +175,7 @@ def export_to_pdf(args, cards, filename):
         x_offset = padding + (col * (width + padding))
         y_offset = pageHeight - ((row + 1) * (height + padding + panelRowPadding))
         
-        draw_card(c, df, x_offset, y_offset, width, height, args.no_header, args.title)
+        draw_card(c, df, x_offset, y_offset, width, height, args.no_headers, args.title)
         
         # If page is full or it's the last card, start a new page
         if (i + 1) % args.per_page == 0 and (i + 1) < len(cards):
@@ -258,6 +264,8 @@ def run_gui():
     main(args)
 
 def main(args):
+    # print(args)
+
     if not (1 <= args.num_cards <= 100):
         print(f"Error: You requested {args.num_cards} cards, but the limit is 100.")
         sys.exit(1)
@@ -266,7 +274,6 @@ def main(args):
         print("FREE SPACE on.")
     elif args.free_space is False:
         print("FREE SPACE off.")
-
 
     cards = generateMultipleCards(args)
 
