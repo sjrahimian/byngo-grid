@@ -2,6 +2,6 @@
 Type=Application
 Name=Byngo Cards
 Exec=byngo
-Icon=icon
+Icon=utilities-terminal
 Categories=Utility;
 Comment=Generate bingo cards and export to PDF.

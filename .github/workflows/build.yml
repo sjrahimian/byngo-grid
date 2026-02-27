@@ -67,14 +67,9 @@ jobs:
           mkdir -p recipe
           cp byngo.py recipe/
           cp resources/byngo.desktop recipe/
-          cp resources/icon.png recipe/
           
-          python3 -m python_appimage build app recipe \
-            --entry-point byngo.py \
-            --desktop-file byngo.desktop \
-            --python-version 3.12
+          python3 -m python_appimage build recipe/
           
-          # python-appimage outputs a file usually named after the Entry Point
           mv *.AppImage "byngo-${{ env.APP_VERSION }}-${{ matrix.os_short }}.AppImage"
         env:
           APPIMAGE_EXTRA_LIBS: "libgtk-3.so.0;libnotify.so.4;libsdl2-2.0.so.0"
