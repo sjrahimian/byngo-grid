@@ -1,16 +1,16 @@
-# Byngo Card Generator
+# Byngo Cards Generator
 
-Generate unique bingo cards and export to PDF.
+Generate bingo cards and export to PDF.
 
 ## Getting Started
 
 Download the application from the latest [releases page](https://github.com/sjrahimian/game-library-index/releases/latest) for the target operating system.
 
-Then open your command line interface and run by executing the `byngo.exe`.
+If you try running the executable without any arguments (e.g., `-h\--help`), it will launch a basic GUI.
 
 ### Options
 
-*Byngo Card* allows you to customize several options:
+*Byngo Cards* allows you to customize several options:
 
 #### Card Options
 

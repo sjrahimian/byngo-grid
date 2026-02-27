@@ -16,7 +16,7 @@ jobs:
             os_short: win
             ext: .exe
           - os: ubuntu-latest
-            os_short: linux
+            os_short: lin
             ext: ""
 
     steps:
@@ -32,18 +32,15 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pandas reportlab pyinstaller
-      # if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          # Added Gooey and wxPython (Gooey dependency)
+          pip install pandas reportlab pyinstaller gooey
 
-
-      # Extract version from byngo.py for Linux/Ubuntu
       - name: Get Version (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
           VERSION=$(grep "__version__" byngo.py | cut -d'"' -f2)
           echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
 
-      # Extract version from byngo.py for Windows
       - name: Get Version (Windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
@@ -54,7 +51,14 @@ jobs:
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller --onefile --name "byngo-${{ env.APP_VERSION }}-${{ matrix.os_short }}" byngo.py
+          # --collect-all gooey: Ensures all GUI assets are included
+          # --noconsole: Prevents a black terminal from popping up behind the GUI (Windows)
+          # --hidden-import: Ensures wxPython components are linked
+          pyinstaller --onefile \
+            --noconsole \
+            --collect-all gooey \
+            --name "byngo-${{ env.APP_VERSION }}-${{ matrix.os_short }}" \
+            byngo.py
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
