@@ -10,7 +10,7 @@ __email__ = [""]
 __credits__ = [__author__, ""]
 __title__ = "Byngo Cards"
 __copyright__ = f"{__title__} © 2026"
-__version__ = "0.8.1"
+__version__ = "0.8.2"
 __status__ = "development"
 __license__ = "Unlicense"
 
@@ -39,17 +39,18 @@ def arguments():
 
     # Bingo card options
     card_parser = parser.add_argument_group("Card Options")
+    card_parser.add_argument('-c', '--num_cards', action='store', default=1, type=int, help="Number of cards to be generated (1 - 100)")
+    card_parser.add_argument('-g', '--grid', action='store', choices=range(3, 6), default=5, type=int, help="Size of grid: 3x3, 4x4, or 5x5")
+    
     freeSpaceGroup = card_parser.add_mutually_exclusive_group()
-    freeSpaceGroup.add_argument('-F', '--free-space', action='store_true', help='Force a free space')
+    freeSpaceGroup.add_argument('-F', '--free-space', action='store_true', help='Add a free space')
     freeSpaceGroup.add_argument('-x', '--no-free-space', action='store_false', dest='free_space', help='Remove free space')
     card_parser.set_defaults(free_space=None)
 
-    card_parser.add_argument('-c', '--num_cards', action='store', default=1, type=int, help="Number of cards to be generated (1 - 100)")
-    card_parser.add_argument('-g', '--grid', action='store', choices=range(3, 6), default=5, type=int, help="Size of grid: 3x3, 4x4, or 5x5")
 
     # PDF options
     pdf_parser = parser.add_argument_group("PDF Options")
-    pdf_parser.add_argument('-f', '--file', action="store", default="byngo-cards.pdf", type=str, help="Provide PDF filename.")
+    pdf_parser.add_argument('-f', '--filename', dest="file", action="store", default="byngo-cards.pdf", type=str, help="Provide PDF filename.")
     pdf_parser.add_argument('-H', '--no-headers', action='store_false', help='Remove the extra row for the column headers.')
     pdf_parser.add_argument('-p', '--per-page', action="store", choices={1, 2, 4}, default=4, type=int, help='Cards per PDF page')
     pdf_parser.add_argument('-t', '--title', action='store', default=None, type=cardTitleCharLimit, help="Place a custom title for the game card")
