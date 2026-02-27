@@ -10,7 +10,7 @@ __email__ = [""]
 __credits__ = [__author__, ""]
 __title__ = "Byngo Card"
 __copyright__ = f"© {__title__}"
-__version__ = "0.7.7"
+__version__ = "0.7.8"
 __status__ = "development"
 __license__ = "Unlicense"
 
@@ -26,9 +26,6 @@ import pandas as pd
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
-
-from pyhtml2pdf import converter
-from pypdf import PdfWriter
 
 def arguments(): 
     parser = argparse.ArgumentParser(description='Generate unique random bingo cards and export to PDF.', epilog='')
