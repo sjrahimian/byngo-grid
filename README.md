@@ -20,8 +20,8 @@ If you try running the executable without any arguments (e.g., `-h\--help`), it 
 
 #### PDF Options
 
-* Add title to each card
-* Enable/disable column headers
+* Add title to each card (30 characters limit)
+* Remove column headers
 * Custom filename
 * Number of cards/page: 1, 2, or 4
 
