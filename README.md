@@ -34,7 +34,7 @@ The PDF pages are letter size.
 ```bash
 python -m venv .venv
 . .venv/bin/activate
-pip install pandas reportlab
+pip install pandas reportlab gooey
 python ./byngo.py --help
 ```
 
