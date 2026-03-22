@@ -4,6 +4,8 @@ Generate bingo cards and export to PDF.
 
 An example is viewable to [see here](./resources/sample.pdf).
 
+Breakdown of the column number pools is [available here](./resources/number_pools.md).
+
 ## Getting Started
 
 Download the application from the latest [releases page](https://github.com/sjrahimian/byngo-cards/releases/latest) for the target operating system.
